@@ -1,6 +1,7 @@
 def post_entity(post) -> dict:
     return {
         "id": str(post["_id"]),
+        "title": post["title"],
         "short_description": post["short_description"],
         "description": post["description"],
         "tags": post["tags"],
