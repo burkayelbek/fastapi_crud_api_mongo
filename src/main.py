@@ -1,24 +1,22 @@
 from fastapi import FastAPI
-from src.config.database import DatabaseConnection
 from dotenv import dotenv_values
-from models import model
-from schemas.schemas import list_posts
-from bson import ObjectId
-
-db = DatabaseConnection()
-collection = db.get_collection("posts")
+from src.routers import post_router
 
 app = FastAPI()
+app.include_router(post_router.router)
 
-@app.get("/posts/list")
-async def get_posts():
-    posts = list_posts(collection.find())
-    return posts
-
-@app.post("/posts")
-async def add_post(post: model.Post):
-    pass
 
 @app.get("/")
 async def health_check():
     return {"message": "Health Check!"}
+
+
+@app.on_event("startup")
+async def startup_event():
+    print("startup")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    print("shutdown")
+    exit(1)
