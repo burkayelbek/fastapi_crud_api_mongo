@@ -41,8 +41,8 @@ async def add_post(post: model.PostInDb):
     collection.insert_one(dict(post))
 
 
-@router.put("/fully-update/{id}", response_model=model.PostInDb)
-async def update_post(id: str, post: model.PostBase):
+@router.put("/full-update/{id}", response_model=model.PostInDb)
+async def update_post_full(id: str, post: model.PostBase):
     if not is_valid_object_id(id):
         return JSONResponse(status_code=400, content=jsonable_encoder({"message": f"Invalid id format: {id}. "
                                                                                   f"It must be a valid ObjectId. "
@@ -63,7 +63,7 @@ async def update_post(id: str, post: model.PostBase):
 
 
 @router.patch("/partial-update/{id}", response_model=model.PostInDb)
-async def update_post(id: str, post: model.PostBase):
+async def update_post_partial(id: str, post: model.PostInDb):
     # ToDo: partial update does not work. Fix it!
     if not is_valid_object_id(id):
         return JSONResponse(status_code=400, content=jsonable_encoder({"message": f"Invalid id format: {id}. "
