@@ -13,13 +13,22 @@ class DatabaseConnection:
         return cls._instance
 
     def __init__(self):
+        try:
+            self.database = settings.mongodb_db
+            self.user = settings.mongodb_user
+            self.password = settings.mongodb_password
+            self.port = settings.mongodb_port
+            self.host = settings.mongodb_host
+        except AttributeError as e:
+            raise AttributeError("Database settings are not properly configured.", e)
+
         self.DB_URL = self._create_db_url()
         self.client = None
         self.connected = False
 
-    def get_connection(self) -> dict:
+    def get_connection(self):
         if self.connected:
-            return {"client": self.client, "collection_names": self.client[settings.mongodb_db].list_collection_names()}
+            return self.client
 
         self.client = MongoClient(self.DB_URL)
         try:
@@ -28,21 +37,34 @@ class DatabaseConnection:
             self.connected = True
         except ConnectionFailure as e:
             print("Connection to MongoDB failed:", e)
-        return {"client": self.client, "collection_names": self.client[settings.mongodb_db].list_collection_names()}
+
+        return self.client
+
+    @property
+    def database_instance(self):
+        if self.database is None:
+            return None
+        database_instance = self.get_connection()[self.database]
+        return database_instance
 
     def get_collection(self, collection_name=None):
         if collection_name is None:
             return None
-        collection_info = self.get_connection()
-        collection_names = collection_info.get("collection_names")
+        if not self.connected:
+            try:
+                self.get_connection()
+            except ConnectionFailure as e:
+                print("Error occured while trying to connect database:", e)
+
+        collection_names = self.client[self.database].list_collection_names()
 
         matched = next((cn for cn in collection_names if collection_name == cn), None)
         if not matched:
             raise ValueError(f"Collection '{matched}' not found.")
-        return matched
+        return self.database_instance[collection_name]
 
     def _create_db_url(self):
-        return f"mongodb://{settings.mongodb_user}:" \
-               f"{settings.mongodb_password}@" \
-               f"{settings.mongodb_host}:" \
-               f"{settings.mongodb_port}/?authMechanism=DEFAULT&authSource={settings.mongodb_db}"
+        return f"mongodb://{self.user}:" \
+               f"{self.password}@" \
+               f"{self.host}:" \
+               f"{self.port}/?authMechanism=DEFAULT&authSource={self.database}"

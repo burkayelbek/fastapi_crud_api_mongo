@@ -1,4 +1,4 @@
-def return_post(post) -> dict:
+def post_entity(post) -> dict:
     return {
         "id": str(post["_id"]),
         "short_description": post["short_description"],
@@ -10,4 +10,4 @@ def return_post(post) -> dict:
 
 
 def list_posts(posts) -> list:
-    return [return_post(post) for post in posts]
+    return [post_entity(post) for post in posts]
