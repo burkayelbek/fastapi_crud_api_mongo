@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import uvicorn
 from dotenv import dotenv_values
 from src.routers import post_router
 
@@ -20,3 +21,7 @@ async def startup_event():
 async def shutdown_event():
     print("shutdown")
     exit(1)
+
+
+if __name__ == "__main__":
+    uvicorn.run(app)
