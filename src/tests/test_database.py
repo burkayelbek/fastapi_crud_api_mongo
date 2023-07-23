@@ -6,7 +6,7 @@ from src.config.settings import settings
 from src import main
 
 
-class MyTestCase(unittest.TestCase):
+class DatabaseTestService(unittest.TestCase):
 
     def setUp(self):
         self.database_service = DatabaseConnection()
