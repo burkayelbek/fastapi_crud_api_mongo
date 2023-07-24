@@ -1,6 +1,5 @@
 import uuid
-
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, validator
 from typing import List
 from datetime import datetime, timedelta
 
@@ -28,3 +27,7 @@ class PostBase(BaseModel):
 class PostInDb(PostBase):
     created_at: datetime = Field(default_factory=lambda: datetime.utcnow() + timedelta(hours=3))
     updated_at: datetime = Field(default_factory=lambda: datetime.utcnow() + timedelta(hours=3))
+
+    @validator("*", pre=True)
+    def remove_extra_fields(cls, v):
+        return v
